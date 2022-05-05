@@ -1,9 +1,22 @@
+from xml.dom import ValidationErr
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, SubmitField, TextAreaField, BooleanField
-from wtforms.validators import DataRequired, Email, Length, EqualTo, ValidationError
+from wtforms.validators import DataRequired, Email, Length, EqualTo, ValidationError, Optional
 from FlaskBlogApp.models import User
 from flask_login import current_user
 """Version 2"""
+
+
+def maxImageSize(max_size=2):
+    max_bytes = max_size * 1024 * 1024
+
+    def _check_file_size(form, field):
+        if len(field.data.read()) > max_bytes:
+            raise ValidationErr(
+                f'Το μέγεθος της εικόνας δεν μπορεί να υπερβαίνει τα {max_bytes} ΜΒ')
+
+    return _check_file_size
 
 
 class SignupForm(FlaskForm):
@@ -66,6 +79,11 @@ class AccountUpdateForm(FlaskForm):
     email = StringField(label="email",
                         validators=[DataRequired(message="Αυτό το πεδίο δε μπορεί να είναι κενό."),
                                     Email(message="Παρακαλώ εισάγετε ένα σωστό email")])
+
+    profile_image = FileField('Εικόνα Προφίλ', validator=[Optional(strip_whitespace=True),
+                                                          FileAllowed(
+                                                              ['jpg', 'jpeg', 'png'], 'Επιτρέπονται συγκεκριμένα formats'),
+                                                          maxImageSize(max_size=3)])
 
     submit = SubmitField('Αποστολή')
 

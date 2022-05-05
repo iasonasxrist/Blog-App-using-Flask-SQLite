@@ -158,6 +158,10 @@ def account():
         current_user.username = form.username.data
         current_user.email = form.email.data
 
+        profile_image = form.profile_image.data
+
+        print(profile_image)
+
         db.session.commit()
 
         flash(
